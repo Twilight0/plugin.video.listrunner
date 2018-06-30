@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-    LiveLite Add-on
+    ListRunner Add-on
     Author: Twilight0
 
         This program is free software: you can redistribute it and/or modify
@@ -17,11 +17,3 @@
         You should have received a copy of the GNU General Public License
         along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-
-import sys, urlparse
-
-sysurl = sys.argv[0]
-syshandle = int(sys.argv[1])
-params = dict(urlparse.parse_qsl(sys.argv[2][1:]))
-action = params.get('action', None)
-url = params.get('url')

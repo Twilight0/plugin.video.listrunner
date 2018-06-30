@@ -51,8 +51,8 @@ msgid "Install youtube-dl"
 msgstr "Εγκατάσταση youtube-dl"
 
 msgctxt "#30010"
-msgid "Install urlresolver"
-msgstr "Εγκατάσταση urlresolver"
+msgid "Install resolveurl"
+msgstr "Εγκατάσταση resolveurl"
 
 msgctxt "#30011"
 msgid "Settings"
@@ -63,12 +63,12 @@ msgid "Refresh Playlist"
 msgstr "Ανανέωση λίστας αναπαραγωγής"
 
 msgctxt "#30013"
-msgid "Wrong playlist format or no connection"
-msgstr "Λανθασμένη μορφή λίστας αναπαραγωγής ή απουσία δικτύου"
+msgid "No playlist loaded, wrong playlist format or no connection"
+msgstr "Δεν φορτώθηκε λίστα αναπαραγωγής, λανθασμένη μορφή ή απουσία δικτύου"
 
 msgctxt "#30014"
-msgid "Use alternative method for youtube plugin call"
-msgstr "Χρησιμοποίησε εναλλακτική μέθοδο για την κλήση του πρόσθετου youtube"
+msgid "Install streamlink"
+msgstr "Εγκατάσταση streamlink"
 
 msgctxt "#30015"
 msgid "Group '{0}'"
@@ -115,8 +115,8 @@ msgid "This setting represents time in hours"
 msgstr "Η ρύθμιση αυτή είναι χρόνος σε ώρες"
 
 msgctxt "#30026"
-msgid "No playlist present"
-msgstr "Κενή λίστα αναπαραγωγής"
+msgid "Streamlink already installed"
+msgstr "Το Streamlink είναι ήδη εγκατεστημένο"
 
 msgctxt "#30027"
 msgid "Cache clear"
@@ -135,8 +135,8 @@ msgid "Youtube-DL already installed"
 msgstr "Το Youtube-DL είναι ήδη εγκατεστημένο"
 
 msgctxt "#30031"
-msgid "URLresolver already installed"
-msgstr "Το URLresolver είναι ήδη εγκατεστημένο"
+msgid "Resolveurl already installed"
+msgstr "Το resolveurl είναι ήδη εγκατεστημένο"
 
 msgctxt "#30032"
 msgid "[COLOR white]Refresh playlist when changing settings (via context menu)[/COLOR]"
@@ -145,3 +145,35 @@ msgstr "[COLOR white]Ανανεώστε την λίστα όταν πραγμα�
 msgctxt "#30033"
 msgid "Ungrouped"
 msgstr "Μη ομαδοποιημένο"
+
+msgctxt "#30035"
+msgid "Show root menu"
+msgstr "Δείξε το αρχικό μενού"
+
+msgctxt "#30036"
+msgid "Youtube-DL is not installed"
+msgstr "Το Youtube-DL δεν είναι εγκατεστημένο"
+
+msgctxt "#30037"
+msgid "ResolveURL is not installed"
+msgstr "Το resolveurl δεν είναι εγκατεστημένο"
+
+msgctxt "#30038"
+msgid "Settings"
+msgstr "Ρυθμίσεις"
+
+msgctxt "#30039"
+msgid "Youtube-DL settings"
+msgstr "Ρυθμίσεις youtube-dl"
+
+msgctxt "#30040"
+msgid "ResolveURL settings"
+msgstr "Ρυθμίσεις resolveurl"
+
+msgctxt "#30041"
+msgid "Play youtube streams with the youtube addon"
+msgstr "Αναπαραγωγή ροών youtube με το πρόσθετο youtube"
+
+msgctxt "#30042"
+msgid "Show group switcher"
+msgstr "Δείξε τον εναλλάκτη ομάδων"

@@ -19,34 +19,57 @@
 """
 
 import re
-from tulip import ordereddict, client, youtube, cache, control
-from resources.lib import syshandle, sysurl, action, url
+from tulip import client, youtube, cache, control, directory
+from tulip.init import params
+from tulip.compat import OrderedDict, quote, urlencode
+from tulip.log import log_debug
+
+action = params.get('action')
+url = params.get('url')
 
 try:
     import YDStreamExtractor
 except ImportError:
-    pass
+    YDStreamExtractor = None
 
 try:
-    import urlresolver
+    import resolveurl
 except ImportError:
-    pass
+    resolveurl = None
+
+try:
+    import streamlink.session
+except ImportError:
+    streamlink = None
 
 
-yt_prefix = 'plugin://plugin.video.youtube/play/?video_id='
+def yt_playlist_getter(pid):
+
+    if 'playlist?list=' in pid:
+        pid = pid.partition('list=')[2]
+
+    yt_list = youtube.youtube(key='AIzaSyA8k1OyLGf03HBNl0byD511jr9cFWo2GR4', replace_url=False).playlist(pid)
+
+    if not yt_list:
+        return
+
+    for count, i in enumerate(yt_list, start=1):
+        i.update({'action': 'play', 'isFolder': 'False', 'code': count})
+
+    return yt_list
 
 
 def constructor():
 
-    lista = [] ;  groups = []
+    items_list = [] ;  groups = []
 
     if control.setting('local_or_remote') == '0':
         try:
-            with open (control.setting('local')) as _file_:
-                text = _file_.read()
-                _file_.close()
+            with open (control.setting('local')) as f:
+                text = f.read()
+                f.close()
         except IOError:
-            return 'null'
+            return
     elif control.setting('local_or_remote') == '1':
         try:
             text = client.request(control.setting('remote'))
@@ -55,18 +78,24 @@ def constructor():
         except ValueError:
             text = client.request(control.setting('remote'), close=False)
             if text is None:
-                return 'null'
+                return
     else:
-        return 'Youtube'
+        return cache.get(
+            yt_playlist_getter, int(control.setting('caching')) if int(control.setting('caching')) > 0 else 0,
+            control.setting('youtube_url')
+        )
+
+    if not text.startswith('#EXTM3U'):
+        return
 
     result = text.replace('\t', ' ')
-    items = re.compile('EXTINF:(-? ?\d*)(.*?)$\n(.*?)$', re.U + re.S + re.M).findall(result)
+    items = re.compile('EXTINF:(-? ?\d*)(.*?)$\r?\n?(.*?)$', re.U + re.S + re.M).findall(result)
 
-    for duration, item, link in items:
+    for number, (duration, item, uri) in enumerate(items, start=1):
 
         duration = duration.strip()
         item = item.strip()
-        link= link.strip()
+        uri= uri.strip()
 
         count = item.count(',')
 
@@ -77,14 +106,8 @@ def constructor():
 
         try:
             title = title.decode('utf-8').strip()
-        except:
+        except Exception:
             title = title.strip()
-
-        if not control.condVisibility('System.HasAddon(script.module.urlresolver)'):
-            link = link.replace('https://www.youtube.com/watch?v=', yt_prefix)
-            link = link.replace('https://youtu.be/', yt_prefix)
-            link = link.replace('http://www.youtube.com/watch?v=', yt_prefix)
-            link = link.replace('http://youtu.be/', yt_prefix)
 
         duration = int(duration)
 
@@ -102,21 +125,34 @@ def constructor():
         else:
             group = control.lang(30033)
 
-        data = ({'title': title, 'image': icon, 'group': 'NULL' if group == '' else group.decode('utf-8'), 'url': link, 'duration': duration if duration > 0 else None})
-        lista.append(data)
-        groups.append(group.decode('utf-8'))
+        try:
+            group = group.decode('utf-8')
+        except Exception:
+            pass
 
-    trimmed_groups = list(ordereddict.OrderedDict.fromkeys(groups))
+        data = (
+            {
+                'title': title, 'image': icon, 'group': group, 'genre': group, 'url': uri, 'code': str(number),
+                'duration': duration if duration > 0 else None, 'action': 'play', 'isFolder': 'False'
+            }
+        )
+        items_list.append(data)
+
+
+        try:
+            groups.append(group.decode('utf-8'))
+        except Exception:
+            groups.append(group)
+
+    trimmed_groups = list(OrderedDict.fromkeys(groups))
 
     trimmed_groups.sort()
 
     if len(trimmed_groups) == 1:
         control.setSetting('group', 'ALL')
-
-    if not text.startswith('#EXTM3U'):
-        return 'null'
+        return items_list
     else:
-        return lista, trimmed_groups
+        return items_list, trimmed_groups
 
 
 def switcher():
@@ -124,7 +160,7 @@ def switcher():
     def seq(choose):
 
         control.setSetting('group', choose)
-        control.execute('Dialog.Close(busydialog)')
+        control.idle()
         control.sleep(50)
         control.execute('Container.Refresh')
 
@@ -141,94 +177,77 @@ def switcher():
         control.dialog.notification(heading=control.addonInfo('name'), message=control.lang(30019), icon=control.addonInfo('icon'), sound=False)
 
 
-def nullify(_id_):
-
-    null = [
-        {
-            'title': control.lang(_id_),
-            'image': control.join(control.addonPath, 'resources', 'media', 'null.png'),
-            'url': sysurl
-        }
-    ]
-
-    return null
-
-
 def main_menu():
 
-    menu = []
+    if control.setting('show_root') == 'false' and not control.setting('local') and not control.setting('remote') and not control.setting('youtube_url'):
+        return
+
+    try:
+        group_setting = control.setting('group').decode('utf-8')
+    except Exception:
+        group_setting = control.setting('group')
 
     root_menu = [
         {
             'title': control.lang(30011),
             'image': control.join(control.addonPath, 'resources', 'media', 'settings.png'),
-            'url': '{0}?action={1}'.format(sysurl, 'settings')
-        }
-        ,
-        {
-            'title': control.lang(30015).format(control.lang(30016) if control.setting('group') == 'ALL' else control.setting('group').decode('utf-8')),
-            'image': control.join(control.addonPath, 'resources', 'media', 'switcher.png'),
-            'url': '{0}?action={1}'.format(sysurl, 'switcher')
+            'action': 'settings'
         }
     ]
 
-    try:
-        if constructor() == 'Youtube':
-            if 'playlist?list=' in control.setting('youtube_url'):
-                items = root_menu + cache.get(youtube.youtube(key='AIzaSyA8k1OyLGf03HBNl0byD511jr9cFWo2GR4').playlist,
-                                              int(control.setting('caching')) if int(control.setting('caching')) > 0 else 0,
-                                              control.setting('youtube_url').partition('list=')[2])
-                del items[1]
-            elif not bool(control.setting('youtube_url')):
-                raise TypeError
+    null = [
+        {
+            'title': control.lang(30013),
+            'image': control.join(control.addonPath, 'resources', 'media', 'null.png'),
+            'action': None
+        }
+    ]
+
+    if control.setting('show_root') == 'false':
+        root_menu = []
+        null = []
+
+    switcher_menu = [
+        {
+            'title': control.lang(30015).format(control.lang(30016) if control.setting('group') == 'ALL' else group_setting),
+            'image': control.join(control.addonPath, 'resources', 'media', 'switcher.png'),
+            'action': 'switcher'
+        }
+    ]
+
+    if control.setting('show_switcher') == 'false':
+        switcher_menu = []
+
+    if not control.setting('local') and not control.setting('remote') and not control.setting('youtube_url'):
+        items = root_menu + null
+    else:
+        try:
+            if not constructor():
+                items = root_menu + null
+            elif len(constructor()) == 2:
+                filtered = [
+                    i for i in constructor()[0] if any(i['group'] == selected for selected in [group_setting])
+                ] if not control.setting('group') == 'ALL' else constructor()[0]
+                items = root_menu + switcher_menu + filtered
             else:
-                raise ValueError
-        elif constructor() == 'null':
-            raise TypeError
-        elif not constructor()[0] == []:
-            if len(constructor()[1]) == 1:
-                del root_menu[1]
-            if control.setting('group') not in constructor()[1]:
-                control.setSetting('group', 'ALL')
-            filtered = [item for item in constructor()[0] if any(item['group'] == selected for selected in [control.setting('group').decode('utf-8')])] if not control.setting('group') == 'ALL' else constructor()[0]
-            items = root_menu + filtered
-        else:
-            raise ValueError
-    except ValueError:
-        items = root_menu + nullify(30013)
-        del items[1]
-    except TypeError:
-        items = root_menu + nullify(30026)
-        del items[1]
+                items = root_menu + constructor()
+        except Exception:
+            items = root_menu + null
 
-    for item in items:
+    for i in items:
+        i.update(
+            {
+                'cm': [
+                    {'title': 30012, 'query': {'action': 'refresh'}}, {'title': 30038, 'query': {'action': 'settings'}}
+                ]
+            }
+        )
 
-        li = control.item(label=item['title'])
-        li.setInfo('video', {'title': item['title']})
-        li.setArt({'icon': item['image'], 'thumb': item['image'], 'fanart': control.addonInfo('fanart')})
-        li.setProperty('IsPlayable', 'true')
-        li.addStreamInfo('video', {'codec': 'h264'})
-        li.addContextMenuItems([(control.lang(30012), 'RunPlugin({0}?action=refresh)'.format(sysurl))])
-        _url_ = '{0}?action=play&url={1}'.format(sysurl, item['url'])
-        isFolder = False
-        if control.setting('youtube') == 'true' and item['url'].startswith(yt_prefix):
-            _url_ = '{0}?action=play&url={1}'.format(sysurl, item['url'])
-        if control.setting('youtube') == 'false' and item['url'].startswith(yt_prefix):
-            _url_ = item['url']
-        if item['url'].startswith('plugin://'):
-            _url_ = item['url']
-        if item['url'].endswith(('settings', 'switcher')):
-            li.setProperty('IsPlayable', 'false')
-        menu.append((_url_, li, isFolder))
-
-    control.addItems(syshandle, menu)
-    control.directory(syshandle, cacheToDisc=True)
-
-
-def play_item(path):
-
-    li = control.item(path=path)
-    control.resolve(syshandle, True, listitem=li)
+    control.sortmethods('production_code')
+    control.sortmethods('title')
+    if len(constructor()) == 2:
+        control.sortmethods('genre')
+    directory.add(items)
 
 
 if action is None:
@@ -237,33 +256,68 @@ if action is None:
 
 elif action == 'play':
 
+    yt_prefix = 'plugin://plugin.video.youtube/play/?video_id='
+
+    if (not resolveurl and not YDStreamExtractor and not streamlink) or control.setting('yt_addon') == 'true':
+        url = re.sub(
+            r'''https?://(?:[0-9A-Z-]+\.)?(?:(youtu\.be|youtube(?:-nocookie)?\.com)/?\S*?[^\w\s-])([\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|</a>))[?=&+%\w.-]*''',
+            yt_prefix + r'\2', url, flags=re.I
+        )
+
     if url.startswith(yt_prefix):
-        control.execute('PlayMedia("{0}")'.format(url))
+        log_debug('Youtube addon is used for playback')
+        directory.resolve(url)
+
     else:
-        try:
-            stream = YDStreamExtractor.getVideoInfo(url)
-            url = stream.streamURL()
-            # title = stream.selectedStream()['title']
-            # icon = stream.selectedStream()['thumbnail']
-            play_item(url)
-        except AttributeError:
-            try:
-                if urlresolver.HostedMediaFile(url).valid_url():
-                    url = urlresolver.resolve(url)
-                    play_item(url)
-                else:
-                    play_item(url)
-            except NameError:
-                play_item(url)
-        except NameError:
-            try:
-                if urlresolver.HostedMediaFile(url).valid_url():
-                    url = urlresolver.resolve(url)
-                    play_item(url)
-                else:
-                    play_item(url)
-            except NameError:
-                play_item(url)
+
+        for i in ['resolveurl', 'youtube-dl', 'streamlink', 'unresolvable']:
+            if resolveurl is not None and i == 'resolveurl':
+                if resolveurl.HostedMediaFile(url).valid_url():
+                    try:
+                        link = resolveurl.resolve(url)
+                        directory.resolve(link, dash=('.mpd' in link or 'dash' in link))
+                        break
+                    except Exception:
+                        continue
+            elif YDStreamExtractor is not None and i == 'youtube-dl':
+                try:
+                    stream = YDStreamExtractor.getVideoInfo(url)
+                    link = stream.streamURL()
+                    # title = stream.selectedStream()['title']
+                    # icon = stream.selectedStream()['thumbnail']
+                    directory.resolve(link, dash=('.mpd' in link or 'dash' in link))
+                    break
+                except Exception:
+                    continue
+            elif streamlink is not None and i == 'streamlink':
+                try:
+                    session = streamlink.session.Streamlink()
+                    plugin = session.resolve_url(url)
+                    streams = plugin.streams()
+                    try:
+                        args = streams['best'].args
+                        append = '|'
+                        if 'headers' in args:
+                            headers = quote(streams['best'].args['headers'])
+                            append += urlencode(headers)
+                        else:
+                            append = ''
+                    except AttributeError:
+                        append = ''
+
+                    link = streams['best'].to_url() + append
+                    directory.resolve(link, dash=('.mpd' in link or 'dash' in link))
+                    break
+                except Exception:
+                    continue
+            else:
+                try:
+                    log_debug('Resolvers failed to resolve stream, trying playing it directly')
+                    directory.resolve(url, dash=('.mpd' in url or 'dash' in url))
+                    break
+                except Exception:
+                    log_debug('Playback failed')
+                    break
 
 elif action == 'install_youtube-dl':
 
@@ -272,12 +326,33 @@ elif action == 'install_youtube-dl':
     else:
         control.execute('RunPlugin(plugin://script.module.youtube.dl)')
 
-elif action == 'install_urlresolver':
+elif action == 'install_resolveurl':
 
-    if control.condVisibility('System.HasAddon(script.module.urlresolver)'):
+    if control.condVisibility('System.HasAddon(script.module.resolveurl)'):
         control.infoDialog(control.lang(30031))
     else:
-        control.execute('RunPlugin(plugin://script.module.urlresolver)')
+        control.execute('RunPlugin(plugin://script.module.resolveurl)')
+
+elif action == 'install_streamlink':
+
+    if control.condVisibility('System.HasAddon(script.module.streamlink.base)'):
+        control.infoDialog(control.lang(30026))
+    else:
+        control.execute('RunPlugin(plugin://script.module.streamlink.base)')
+
+elif action == 'ytdl_settings':
+
+    if not control.condVisibility('System.HasAddon(script.module.youtube.dl)'):
+        control.infoDialog(control.lang(30036))
+    else:
+        control.Settings('script.module.youtube.dl')
+
+elif action == 'resolveurl_settings':
+
+    if not control.condVisibility('System.HasAddon(script.module.resolveurl)'):
+        control.infoDialog(control.lang(30037))
+    else:
+        control.Settings('script.module.resolveurl')
 
 elif action == 'settings':
 
@@ -285,12 +360,12 @@ elif action == 'settings':
 
 elif action == 'refresh':
 
-    control.execute('Container.Refresh')
+    control.refresh()
 
 elif action == 'switcher':
 
     control.dialog.notification(heading=control.addonInfo('name'), message=control.lang(30020), time=1500, sound=False)
-    control.execute('ActivateWindow(busydialog)')
+    control.busy()
     switcher()
 
 elif action == 'cache_clear':
@@ -302,3 +377,7 @@ elif action == 'cache_clear':
     else:
 
         control.infoDialog(control.lang(30029))
+
+elif action == 'quit':
+
+    control.quit_kodi()

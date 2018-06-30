@@ -16,132 +16,168 @@ msgstr ""
 
 msgctxt "#30001"
 msgid "General"
-msgstr "General"
+msgstr ""
 
 msgctxt "#30002"
 msgid "Playlist"
-msgstr "Playlist"
+msgstr ""
 
 msgctxt "#30003"
 msgid "Local"
-msgstr "Local"
+msgstr ""
 
 msgctxt "#30004"
 msgid "Remote"
-msgstr "Remote"
+msgstr ""
 
 msgctxt "#30005"
 msgid "Local/Remote Playlist Selector"
-msgstr "Local/Remote Playlist Selector"
+msgstr ""
 
 msgctxt "#30006"
 msgid "Local Path (include Local Network)"
-msgstr "Local Path (include Local Network)"
+msgstr ""
 
 msgctxt "#30007"
 msgid "Remote Path (Internet address)"
-msgstr "Remote Path (Internet address)"
+msgstr ""
 
 msgctxt "#30008"
 msgid "Resolvers"
-msgstr "Resolvers"
+msgstr ""
 
 msgctxt "#30009"
 msgid "Install youtube-dl"
-msgstr "Install youtube-dl"
+msgstr ""
 
 msgctxt "#30010"
-msgid "Install urlresolver"
-msgstr "Install urlresolver"
+msgid "Install resolveurl"
+msgstr ""
 
 msgctxt "#30011"
 msgid "Settings"
-msgstr "Settings"
+msgstr ""
 
 msgctxt "#30012"
 msgid "Refresh Playlist"
-msgstr "Refresh Playlist"
+msgstr ""
 
 msgctxt "#30013"
-msgid "Wrong playlist format or no connection"
-msgstr "Wrong playlist format or no connection"
+msgid "No playlist loaded, wrong playlist format or no connection"
+msgstr ""
 
 msgctxt "#30014"
-msgid "Use alternative method for youtube plugin call"
-msgstr "Use alternative method for youtube plugin call"
+msgid "Install streamlink"
+msgstr ""
 
 msgctxt "#30015"
 msgid "Group '{0}'"
-msgstr "Group '{0}'"
+msgstr ""
 
 msgctxt "#30016"
 msgid "ALL"
-msgstr "ALL"
+msgstr ""
 
 msgctxt "#30017"
 msgid "Select the group of your choice"
-msgstr "Select the group of your choice"
+msgstr ""
 
 msgctxt "#30018"
 msgid "Plugin call methods"
-msgstr "Plugin call methods"
+msgstr ""
 
 msgctxt "#30019"
 msgid "Cancel"
-msgstr "Cancel"
+msgstr ""
 
 msgctxt "#30020"
 msgid "Group list is loading"
-msgstr "Group list is loading"
+msgstr ""
 
 msgctxt "#30021"
 msgid "All groups"
-msgstr "All groups"
+msgstr ""
 
 msgctxt "#30022"
 msgid "Youtube Playlist"
-msgstr "Youtube Playlist"
+msgstr ""
 
 msgctxt "#30023"
 msgid "Playlist url (Internet address)"
-msgstr "Playlist url (Internet address)"
+msgstr ""
 
 msgctxt "#30024"
 msgid "Caching (type 0 or leave blank to turn caching off)"
-msgstr "Caching (type 0 or leave blank to turn caching off)"
+msgstr ""
 
 msgctxt "#30025"
 msgid "This setting represents time in hours"
-msgstr "This setting represents time in hours"
+msgstr ""
 
 msgctxt "#30026"
-msgid "No playlist present"
-msgstr "No playlist present"
+msgid "Streamlink already installed"
+msgstr ""
 
 msgctxt "#30027"
 msgid "Cache clear"
-msgstr "Cache clear"
+msgstr ""
 
 msgctxt "#30028"
 msgid "Do you want to clear addon's cache?"
-msgstr "Do you want to clear addon's cache?"
+msgstr ""
 
 msgctxt "#30029"
 msgid "Cancelled"
-msgstr "Cancelled"
+msgstr ""
 
 msgctxt "#30030"
 msgid "Youtube-DL already installed"
-msgstr "Youtube-DL already installed"
+msgstr ""
 
 msgctxt "#30031"
-msgid "URLresolver already installed"
-msgstr "URLresolver already installed"
+msgid "Resolveurl already installed"
+msgstr ""
 
 msgctxt "#30032"
 msgid "[COLOR white]Refresh playlist when changing settings (via context menu)[/COLOR]"
-msgstr "[COLOR white]Refresh playlist when changing settings (via context menu)[/COLOR]"
+msgstr ""
 
 msgctxt "#30033"
 msgid "Ungrouped"
-msgstr "Ungrouped"
+msgstr ""
+
+msgctxt "#30034"
+msgid "Quit"
+msgstr ""
+
+msgctxt "#30035"
+msgid "Show root menu"
+msgstr ""
+
+msgctxt "#30036"
+msgid "Youtube-DL is not installed"
+msgstr ""
+
+msgctxt "#30037"
+msgid "ResolveURL is not installed"
+msgstr ""
+
+msgctxt "#30038"
+msgid "Settings"
+msgstr ""
+
+msgctxt "#30039"
+msgid "Youtube-DL settings"
+msgstr ""
+
+msgctxt "#30040"
+msgid "ResolveURL settings"
+msgstr ""
+
+msgctxt "#30041"
+msgid "Play youtube streams with the youtube addon"
+msgstr ""
+
+msgctxt "#30042"
+msgid "Show group switcher"
+msgstr ""
