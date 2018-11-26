@@ -10,7 +10,7 @@
         <setting id="remote" label="30007" type="text" default="" visible="eq(-2,1)"/>
         <setting id="youtube_url" label="30023" type="text" default="" visible="eq(-3,2)"/>
         <setting label="30024" type="lsep" visible="eq(-4,2)"/>
-        <setting id="caching" label="30025" type="number" default="3" visible="eq(-5,2)"/>
+        <setting id="caching" label="30025" type="number" default="3" enable="eq(-5,2)"/>
         <setting type="action" label="30027" action="RunPlugin(plugin://$ID?action=cache_clear)" visible="eq(-6,2)"/>
         <setting type="action" label="30034" action="RunPlugin(plugin://$ID?action=quit)" option="close"/>
         <setting id="group" label="Group" type="text" default="ALL" visible="false"/>
